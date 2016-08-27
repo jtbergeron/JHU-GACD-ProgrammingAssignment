@@ -1,4 +1,4 @@
 # .gitignore
 #
 # ignore the data directory in the project
-"UCI HAR Dataset"/
+UCI HAR Dataset/
