@@ -95,21 +95,25 @@ verify_path <- function(path) {
 		stop(message)
 	}
 	cat(path, " --- GOOD\n")
-	flush.console()
 }
 
 lapply(paths,verify_path)
 
 # Load the files into R 
 
-raw_features          <- read.table(path_features, stringsAsFactors=FALSE)
-raw_activity_labels   <- read.table(path_activity_labels, stringsAsFactors=FALSE)
-raw_test_subject      <- read.table(path_test_subject, stringsAsFactors=FALSE)
-raw_test_X            <- read.table(path_test_X, stringsAsFactors=FALSE)
-raw_test_y            <- read.table(path_test_y, stringsAsFactors=FALSE)
-raw_train_subject     <- read.table(path_train_subject, stringsAsFactors=FALSE)
-raw_train_X           <- read.table(path_train_X, stringsAsFactors=FALSE)
-raw_train_y           <- read.table(path_train_y, stringsAsFactors=FALSE)
+load_file <- function(path, ...) {
+	write_log(paste("Loading ---:", path))
+	df <- read.table(path, ...)
+}
+
+raw_features          <- load_file(path_features, stringsAsFactors=FALSE)
+raw_activity_labels   <- load_file(path_activity_labels, stringsAsFactors=FALSE)
+raw_test_subject      <- load_file(path_test_subject, stringsAsFactors=FALSE)
+raw_test_X            <- load_file(path_test_X, stringsAsFactors=FALSE)
+raw_test_y            <- load_file(path_test_y, stringsAsFactors=FALSE)
+raw_train_subject     <- load_file(path_train_subject, stringsAsFactors=FALSE)
+raw_train_X           <- load_file(path_train_X, stringsAsFactors=FALSE)
+raw_train_y           <- load_file(path_train_y, stringsAsFactors=FALSE)
 
 
 ################################################################################
@@ -273,7 +277,123 @@ if (ncol_raw_train_X  == 561) {
 
 
 ################################################################################
-# 3. Merging the Test and Train datasets into a single dataset.
+# 3. Data content review and validation prior to merge.
+################################################################################
+
+# Write log entry for start of step
+
+write_log("Data content review and validation prior to merge...")
+
+# Activity Files (y files) contents review
+#
+# The test and train "y files" should only have ID numbers in them 
+# that match the Activity Labels file (activity_labels.txt).
+
+# This is the reference drawn from the Activity Labels file.  
+
+reference_activity_labels <- as.numeric(raw_activity_labels$V1)
+
+# Validate the test y file
+
+t_raw_test_y <- table(raw_test_y, useNA="ifany") 
+d_raw_test_y <- as.numeric(unlist(dimnames(t_raw_test_y)))
+
+if (identical(reference_activity_labels, d_raw_test_y)) {
+	print("Test Activity (y file) contents validate against Activity Labels - GOOD")
+} else {
+	stop("Test Activity (y file) contents does NOT align to Activity Labels - FAILED")
+}
+
+# Validate the train y file
+
+t_raw_train_y <- table(raw_train_y, useNA="ifany") 
+d_raw_train_y <- as.numeric(unlist(dimnames(t_raw_train_y)))
+
+if (identical(reference_activity_labels, d_raw_train_y)) {
+	print("Train Activity (y file) contents validate against Activity Labels - GOOD")
+} else {
+	stop("Train Activity (y file) contents does NOT align to Activity Labels - FAILED")
+}
+
+
+# Subject Files are less critical in that the subjects are identified, but there 
+# is not master reference file they map to.
+#
+# Per the assignment there should be 30 subjects total.
+#
+# Looking at the data subjects were split between the test and training 
+# exercised, indicating the data was split by subject.
+#
+# Here is the FYI information on the split.
+#
+
+t_raw_test_subject  <- table(raw_test_subject, useNA="ifany")
+t_raw_train_subject <- table(raw_train_subject, useNA="ifany")
+ 
+print(t_raw_test_subject)
+print(t_raw_train_subject)
+
+# .............................................................................
+# These are informative tests and do not stop the script.
+# .............................................................................
+
+# Measure Files (X files) have 561 numeric measures (features) making it a very
+# wide dataset.  This is just a quick examination to see if there are any NAs 
+# present in the data.
+#
+
+# Test - Measures file 
+
+nacs_raw_test_X <- colSums(is.na(raw_test_X)) # this can help you spot the col
+nas_raw_test_X <- sum(nacs_raw_test_X)
+
+if (nas_raw_test_X > 0) {
+	print("Test Measures File (X_test.txt) has NAs present")
+} else {
+	print("Test Measures File (X_test.txt) does NOT have NAs present")
+}
+
+# Train - Measures file 
+
+nacs_raw_train_X <- colSums(is.na(raw_train_X)) # this can help you spot the col
+nas_raw_train_X <- sum(nacs_raw_train_X)
+
+if (nas_raw_train_X > 0) {
+	print("Train Measures File (X_train.txt) has NAs present")
+} else {
+	print("Train Measures File (X_train.txt) does NOT have NAs present")
+}
+
+
+# One last set of tests on the Measure Files - checking to make sure all
+# the columns are numeric... 
+
+# Test - Measures file 
+
+ns_raw_test_X <- sum(sapply(raw_test_X, is.numeric))
+
+if (ns_raw_test_X == ncol_raw_test_X) {
+	print("Test Measures File (X_test.txt) is confirmed all numeric")
+} else { 
+	print("Test Measures File (X_test.txt) is NOT all numeric")
+}
+
+# One last set of trains on the Measure Files - checking to make sure all
+# the columns are numeric... 
+
+# Train - Measures file 
+
+ns_raw_train_X <- sum(sapply(raw_train_X, is.numeric))
+
+if (ns_raw_train_X == ncol_raw_train_X) {
+	print("Train Measures File (X_train.txt) is confirmed all numeric")
+} else { 
+	print("Train Measures File (X_train.txt) is NOT all numeric")
+}
+
+
+################################################################################
+# 4. Merging the Test and Train datasets into a single dataset.
 ################################################################################
 
 # Write log entry for start of step
