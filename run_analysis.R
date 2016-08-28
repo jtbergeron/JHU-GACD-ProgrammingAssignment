@@ -48,6 +48,8 @@ run_analysis <- function() {
 #      4.b. Merge the Train files into a single Train dataset.
 #      4.c. Merge the Test and Train datasets into a single dataset.
 #   5. Extract only the mean and standard deviation measurements.  
+#   6. Enriching the dataset with the Activity Names that match to codes.  
+#   7. Writing the Tidy dataset as a CSV file.
 #
 #
 ################################################################################
@@ -170,7 +172,7 @@ if (ncol_raw_activity_labels == 2 & nrow_raw_activity_labels == 6) {
 # identifing the Subject and Activity associated with the Measure (feature).
 #
 # Subject is a 1 column data frame with the subject ID.
-# Activity (y file) is a 1 column data frame with the activity ID.
+# Activity (y file) is a 1 column data frame with the Activity ID.
 # Measures (X file) is a 561 column data frame containing the "features/measures".
 #
 # The number of rows are variable, but all 3 should have the same number.
@@ -416,15 +418,15 @@ write_log("Merging the Test and Train datasets into a single dataset...")
 
 # Test Dataset naming... 
 
-names(raw_test_subject) <- c("Subject ID")
+names(raw_test_subject) <- c("SubjectID")
 names(raw_test_X) <-raw_features[,2]
-names(raw_test_y) <- c("Activity Code")
+names(raw_test_y) <- c("ActivityCode")
 
 # Train Dataset naming... 
 
-names(raw_train_subject) <- c("Subject ID")
+names(raw_train_subject) <- c("SubjectID")
 names(raw_train_X) <-raw_features[,2]
-names(raw_train_y) <- c("Activity Code")
+names(raw_train_y) <- c("ActivityCode")
 
 # Created the consolidated raw datasets
 
@@ -529,6 +531,50 @@ print(trimmed_df[c(1:4),c(1:6)])
 # release the storage for the original data frames
 
 rm(sraw_df)
+
+
+################################################################################
+# 6. Enriching the dataset with the Activity Names that match to codes. 
+################################################################################
+
+# Write log entry for start of step
+
+write_log("Enriching the dataset with the Activity Names that match to codes...")
+
+# Add the Activity Name by translating it with the Activity Labels file. 
+trimmed_df$ActivityName <- raw_activity_labels[as.numeric(trimmed_df$ActivityCode), 2]
+
+# Move the new ActivityName column from the end to the 3rd position. 
+
+ncol_trimmed_df <- ncol(trimmed_df)  ## refresh the column count, given the new column
+newCols <- c(1,2, ncol_trimmed_df, seq(3, (ncol_trimmed_df - 1)))
+
+tidy_df <- trimmed_df[,newCols]
+
+# secure the dimensions for the consolidated data frames
+
+ncol_tidy_df <- ncol(tidy_df)
+nrow_tidy_df <- nrow(tidy_df)
+
+# demonstrate the addition of the new ActivityName as the 3rd column
+
+print("Tidy Dataset - 4X6 Upper Corner - Shows the data for visual review")
+print(tidy_df[c(1:4),c(1:6)])
+
+# release the storage for the original data frames
+
+rm(trimmed_df)
+
+
+################################################################################
+# 7. Writing the Tidy dataset as a CSV file.
+################################################################################
+
+# Write log entry for start of step
+
+write_log("Writing the Tidy dataset as a CSV file...")
+
+
 
 
 
