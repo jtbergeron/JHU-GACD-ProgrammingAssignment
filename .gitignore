@@ -2,3 +2,7 @@
 #
 # ignore the data directory in the project
 UCI HAR Dataset/
+
+# ignore console files
+.RData
+.Rhistory
