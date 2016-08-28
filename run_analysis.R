@@ -400,8 +400,91 @@ if (ns_raw_train_X == ncol_raw_train_X) {
 
 write_log("Merging the Test and Train datasets into a single dataset...")
 
+# -----------------------------------------------------------------------------
+# Applying names to the raw files - prior to combining via cbind()
+#
+# This will set up the combination of the Subject, Activity, and Measures 
+# files into a single file for Test and a single file for Train.
+#
+# These will later be combined via rbind() to create a single dataset.
+# -----------------------------------------------------------------------------
 
+# Test Dataset naming... 
 
+names(raw_test_subject) <- c("Subject ID")
+names(raw_test_X) <-raw_features[,2]
+names(raw_test_y) <- c("Activity Code")
+
+# Train Dataset naming... 
+
+names(raw_train_subject) <- c("Subject ID")
+names(raw_train_X) <-raw_features[,2]
+names(raw_train_y) <- c("Activity Code")
+
+# Created the consolidated raw datasets
+
+craw_test_df  <- cbind(raw_test_subject, raw_test_y, raw_test_X)  
+craw_train_df <- cbind(raw_train_subject, raw_train_y, raw_train_X)  
+
+# secure the dimensions for the consolidated data frames
+
+ncol_craw_test_df <- ncol(craw_test_df)
+nrow_craw_test_df <- nrow(craw_test_df)
+print(paste("Combined raw Test dataset has", nrow_craw_test_df, "rows and", ncol_craw_test_df, "columns."))
+
+ncol_craw_train_df <- ncol(craw_train_df)
+nrow_craw_train_df <- nrow(craw_train_df)
+print(paste("Combined raw Train dataset has", nrow_craw_train_df, "rows and", ncol_craw_train_df, "columns."))
+
+# release the storage for the original data frames
+
+rm(raw_test_subject)  
+rm(raw_test_X) 
+rm(raw_test_y)  
+
+rm(raw_train_subject)  
+rm(raw_train_X) 
+rm(raw_train_y)  
+
+# demonstrate the addition of the two columns on the front of each dataset
+
+print("Test Dataset - 4X4 Upper Corner - Shows added columns")
+print(craw_test_df[c(1:4),c(1:4)])
+
+print("Train Dataset - 4X4 Upper Corner - Shows added columns")
+print(craw_train_df[c(1:4),c(1:4)])
+
+# -----------------------------------------------------------------------------
+# Combining the two datasets via rbind() into a single collect dataset.
+# -----------------------------------------------------------------------------
+
+# do the rbind
+
+sraw_df <- rbind(craw_test_df, craw_train_df)
+
+# secure the dimensions for the consolidated data frames
+
+ncol_sraw_df <- ncol(sraw_df)
+nrow_sraw_df <- nrow(sraw_df)
+
+# release the storage for the original data frames
+
+rm(craw_test_df, craw_train_df)
+
+# Quick review and presentation of the combined raw file... 
+
+print(paste("Combined raw dataset has", nrow_sraw_df, "rows and", ncol_sraw_df, "columns."))
+print("The train file was appended to the test file")
+print("Here is the 4X4 upper corner of the new file, ")
+print("     it should match the upper corner of the Test file")
+print(sraw_df[c(1:4),c(1:4)])
+
+train_offset <- c(1:4)
+train_offset <- train_offset + nrow_craw_test_df
+
+print(paste("Here is the 4X4 left section of the new file, starting at row:", train_offset[[1]] ))
+print("     it should match the upper corner of the Train file")
+print(sraw_df[train_offset,c(1:4)])
 
 
 
