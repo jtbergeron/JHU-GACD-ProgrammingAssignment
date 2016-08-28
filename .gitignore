@@ -1,7 +1,10 @@
 # .gitignore
 #
-# ignore the data directory in the project
+# ignore the "original" data directory in the project
 UCI HAR Dataset/
+
+# ignore the "tidy" data directory in the project
+tidy-data/
 
 # ignore console files
 .RData

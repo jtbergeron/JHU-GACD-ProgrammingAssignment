@@ -50,7 +50,11 @@ run_analysis <- function() {
 #   5. Extract only the mean and standard deviation measurements.  
 #   6. Enriching the dataset with the Activity Names that match to codes.  
 #   7. Writing the Tidy dataset as a CSV file.
+#   8. Log the successful completion of the script.
 #
+# The resulting CSV file can be read in as follows:
+#    tidy_dataset_path <- "./tidy-data/tidy_based_UCI_HAR_Dataset.csv"
+#    test_tidy_df <- read.csv(tidy_dataset_path, stringsAsFactors=FALSE)
 #
 ################################################################################
 
@@ -551,7 +555,7 @@ newCols <- c(1,2, ncol_trimmed_df, seq(3, (ncol_trimmed_df - 1)))
 
 tidy_df <- trimmed_df[,newCols]
 
-# secure the dimensions for the consolidated data frames
+# secure the dimensions for the tidy data frame
 
 ncol_tidy_df <- ncol(tidy_df)
 nrow_tidy_df <- nrow(tidy_df)
@@ -565,6 +569,12 @@ print(tidy_df[c(1:4),c(1:6)])
 
 rm(trimmed_df)
 
+# Showing that there are multiple records per activity, per subject, 
+# consistent with the plans for the next script to summarize on those
+# levels.
+
+print("There are multpliple records per activity, per subject, as shown here.")
+print(table(tidy_df$SubjectID, tidy_df$ActivityName))
 
 ################################################################################
 # 7. Writing the Tidy dataset as a CSV file.
@@ -574,8 +584,59 @@ rm(trimmed_df)
 
 write_log("Writing the Tidy dataset as a CSV file...")
 
+# -----------------------------------------------------------------------------
+# Storing the refined data in a separate directory within the project
+# -----------------------------------------------------------------------------
+
+# validate the current working directory.
+expected_wd <- "C:/Users/John/Google Drive/00_Working_Directory/JHU-GACD-ProgrammingAssignment"
+
+if(expected_wd != getwd()) stop("Unexpected starting directory")
+
+# Created Data subdirectory if not already present
+
+if(!file.exists("tidy-data")) {
+  dir.create("tidy-data")
+}
+
+# -----------------------------------------------------------------------------
+# Write the Tidy dataset
+# -----------------------------------------------------------------------------
+
+tidy_dataset_path <- "./tidy-data/tidy_based_UCI_HAR_Dataset.csv"
+
+write.table(tidy_df, tidy_dataset_path, sep=",")  
 
 
+# -----------------------------------------------------------------------------
+# Read it back in to validate it. 
+# -----------------------------------------------------------------------------
 
+test_tidy_df <- read.csv(tidy_dataset_path, stringsAsFactors=FALSE)
+
+# secure the dimensions for the test tidy data frame
+
+ncol_test_tidy_df <- ncol(test_tidy_df)
+nrow_test_tidy_df <- nrow(test_tidy_df)
+
+# Present upper corner for comparison to origial
+
+print("Tidy Dataset (CSV) - 4X6 Upper Corner - Shows the data for visual review")
+print(test_tidy_df[c(1:4),c(1:6)])
+
+# Final check on the dimenstions 
+
+if ((ncol_test_tidy_df == ncol_tidy_df) & (nrow_test_tidy_df == nrow_tidy_df)) {
+	print("Tidy CSV Dataset dimensions match the Tidy Data Frame dimenstions. -- GOOD")
+} else {
+	stop("Tidy CSV Dataset and Data Frame dimensions DO NOT match. -- FAILURE")
+}
+
+
+################################################################################
+# 8. Log the successful completion of the script.
+################################################################################
+
+write_log("QED - Script ended successfully.")
 
 }
