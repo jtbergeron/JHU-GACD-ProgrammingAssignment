@@ -42,7 +42,12 @@ run_analysis <- function() {
 # The analysis process proceeds as follows:
 #   1. Identify, connect to, and load the files into R data structures.
 #   2. Validate the raw data structures and extract their dimensions.
-#   3. Merging the Test and Train datasets into a single dataset.
+#   3. Data content review and validation prior to merge.
+#   4. Merging the Test and Train datasets into a single dataset.
+#      4.a. Merge the Test files into a single Test dataset.
+#      4.b. Merge the Train files into a single Train dataset.
+#      4.c. Merge the Test and Train datasets into a single dataset.
+#   5. Extract only the mean and standard deviation measurements.  
 #
 #
 ################################################################################
@@ -487,6 +492,43 @@ print("     it should match the upper corner of the Train file")
 print(sraw_df[train_offset,c(1:4)])
 
 
+################################################################################
+# 5. Extract only the mean and standard deviation measurements. 
+################################################################################
+
+# Write log entry for start of step
+
+write_log("Extract the mean and standard deviation measures...")
+
+# Selecting any feature that has "mean" or "std" in it.
+
+feature_names <- names(sraw_df)
+feature_subset <- grep("[Mm]ean|[Ss]td", feature_names)
+
+# we want to keep the first 2 columns and the ones just identified. 
+
+column_select <- c(1:2,feature_subset)
+
+print("These are the columns being kept (Subject ID, Activity Code, and the measures)")
+print(feature_names[column_select])
+
+# Create the Trimmed version of the file 
+
+trimmed_df <- sraw_df[,column_select]
+
+# secure the dimensions for the consolidated data frames
+
+ncol_trimmed_df <- ncol(trimmed_df)
+nrow_trimmed_df <- nrow(trimmed_df)
+
+# demonstrate the addition of the two columns on the front of each dataset
+
+print("Trimmed Dataset - 4X6 Upper Corner - Shows the data for visual review")
+print(trimmed_df[c(1:4),c(1:6)])
+
+# release the storage for the original data frames
+
+rm(sraw_df)
 
 
 
