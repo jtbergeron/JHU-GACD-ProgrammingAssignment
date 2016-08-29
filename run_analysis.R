@@ -585,7 +585,7 @@ print(table(tidy_df$SubjectID, tidy_df$ActivityName))
 
 # Write log entry for start of step
 
-write_log("Writing the Tidy dataset as a CSV file...")
+write_log("Writing the Tidy Base dataset as a CSV file...")
 
 # -----------------------------------------------------------------------------
 # Storing the refined data in a separate directory within the project
@@ -668,14 +668,47 @@ print("Tidy Mean Summary Dataset - 4X6 Upper Corner - Shows the data for visual 
 print(tidy_mean_df[c(1:4),c(1:6)])
 
 
+################################################################################
+# 9. Writing the Tidy Mean Summary dataset as a CSV file.
+################################################################################
 
+# Write log entry for start of step
 
+write_log("Writing the Tidy Mean Summary dataset as a CSV file...")
 
+# -----------------------------------------------------------------------------
+# Write the Tidy Mean Summary dataset
+# -----------------------------------------------------------------------------
 
+tidy_mean_dataset_path <- "./tidy-data/tidy_mean_UCI_HAR_Dataset.csv"
 
+write.table(tidy_mean_df, tidy_mean_dataset_path, sep=",")  
 
+rm(tidy_mean_df) # release the storage for tidy_mean_df
 
+# -----------------------------------------------------------------------------
+# Read it back in to validate it. 
+# -----------------------------------------------------------------------------
 
+test_tidy_mean_df <- read.csv(tidy_mean_dataset_path, stringsAsFactors=FALSE)
+
+# secure the dimensions for the test tidy data frame
+
+ncol_test_tidy_mean_df <- ncol(test_tidy_mean_df)
+nrow_test_tidy_mean_df <- nrow(test_tidy_mean_df)
+
+# Present upper corner for comparison to origial
+
+print("Tidy Mean Summary Dataset (CSV) - 4X6 Upper Corner - Shows the data for visual review")
+print(test_tidy_mean_df[c(1:4),c(1:6)])
+
+# Final check on the dimenstions 
+
+if ((ncol_test_tidy_mean_df == ncol_tidy_mean_df) & (nrow_test_tidy_mean_df == nrow_tidy_mean_df)) {
+	print("Tidy Mean Summary CSV Dataset dimensions match the data frame dimensions. -- GOOD")
+} else {
+	stop("Tidy Mean Summary CSV Dataset does NOT match the data frame dimensions. -- FAILURE")
+}
 
 
 ################################################################################
