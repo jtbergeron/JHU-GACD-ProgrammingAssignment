@@ -671,6 +671,9 @@ print(paste("Tidy Mean Summary Dataset has", nrow_tidy_mean_df, "rows and", ncol
 print("Tidy Mean Summary Dataset - 4X6 Upper Corner - Shows the data for visual review")
 print(tidy_mean_df[c(1:4),c(1:6)])
 
+# Display the full structure
+str(tidy_mean_df)
+
 
 ################################################################################
 # 9. Writing the Tidy Mean Summary dataset as a CSV file.
@@ -713,7 +716,6 @@ if ((ncol_test_tidy_mean_df == ncol_tidy_mean_df) & (nrow_test_tidy_mean_df == n
 } else {
 	stop("Tidy Mean Summary CSV Dataset does NOT match the data frame dimensions. -- FAILURE")
 }
-
 
 ################################################################################
 # 10. Log the successful completion of the script.
