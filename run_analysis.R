@@ -612,7 +612,7 @@ if(!file.exists("tidy-data")) {
 
 tidy_dataset_path <- "./tidy-data/tidy_base_UCI_HAR_Dataset.csv"
 
-write.table(tidy_df, tidy_dataset_path, sep=",")  
+write.table(tidy_df, tidy_dataset_path, sep=",", row.name=FALSE)  
 
 rm(tidy_df) # release the storage for tidy_df
 
@@ -686,7 +686,7 @@ write_log("Writing the Tidy Mean Summary dataset as a CSV file...")
 
 tidy_mean_dataset_path <- "./tidy-data/tidy_mean_UCI_HAR_Dataset.csv"
 
-write.table(tidy_mean_df, tidy_mean_dataset_path, sep=",")  
+write.table(tidy_mean_df, tidy_mean_dataset_path, sep=",", row.name=FALSE)  
 
 rm(tidy_mean_df) # release the storage for tidy_mean_df
 
