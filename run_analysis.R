@@ -49,11 +49,13 @@ run_analysis <- function() {
 #      4.c. Merge the Test and Train datasets into a single dataset.
 #   5. Extract only the mean and standard deviation measurements.  
 #   6. Enriching the dataset with the Activity Names that match to codes.  
-#   7. Writing the Tidy dataset as a CSV file.
-#   8. Log the successful completion of the script.
+#   7. Writing the Tidy Base dataset as a CSV file.
+#   8. Summarize the Base Tidy dataset, providing averages for measures present.
+#   9. Writing the Tidy Mean Summary dataset as a CSV file. 
+#  10. Log the successful completion of the script.
 #
-# The resulting CSV file can be read in as follows:
-#    tidy_dataset_path <- "./tidy-data/tidy_based_UCI_HAR_Dataset.csv"
+# The resulting "Tidy Base" CSV file can be read in as follows:
+#    tidy_dataset_path <- "./tidy-data/tidy_base_UCI_HAR_Dataset.csv"
 #    test_tidy_df <- read.csv(tidy_dataset_path, stringsAsFactors=FALSE)
 #
 ################################################################################
@@ -548,10 +550,11 @@ write_log("Enriching the dataset with the Activity Names that match to codes..."
 # Add the Activity Name by translating it with the Activity Labels file. 
 trimmed_df$ActivityName <- raw_activity_labels[as.numeric(trimmed_df$ActivityCode), 2]
 
-# Move the new ActivityName column from the end to the 3rd position. 
+# Move the new ActivityName column from the end to the 2nd position, replacing
+# the ActivityCode
 
 ncol_trimmed_df <- ncol(trimmed_df)  ## refresh the column count, given the new column
-newCols <- c(1,2, ncol_trimmed_df, seq(3, (ncol_trimmed_df - 1)))
+newCols <- c(1, ncol_trimmed_df, seq(3, (ncol_trimmed_df - 1)))
 
 tidy_df <- trimmed_df[,newCols]
 
@@ -577,7 +580,7 @@ print("There are multpliple records per activity, per subject, as shown here.")
 print(table(tidy_df$SubjectID, tidy_df$ActivityName))
 
 ################################################################################
-# 7. Writing the Tidy dataset as a CSV file.
+# 7. Writing the Tidy Base dataset as a CSV file.
 ################################################################################
 
 # Write log entry for start of step
@@ -603,10 +606,11 @@ if(!file.exists("tidy-data")) {
 # Write the Tidy dataset
 # -----------------------------------------------------------------------------
 
-tidy_dataset_path <- "./tidy-data/tidy_based_UCI_HAR_Dataset.csv"
+tidy_dataset_path <- "./tidy-data/tidy_base_UCI_HAR_Dataset.csv"
 
 write.table(tidy_df, tidy_dataset_path, sep=",")  
 
+rm(tidy_df) # release the storage for tidy_df
 
 # -----------------------------------------------------------------------------
 # Read it back in to validate it. 
@@ -632,9 +636,50 @@ if ((ncol_test_tidy_df == ncol_tidy_df) & (nrow_test_tidy_df == nrow_tidy_df)) {
 	stop("Tidy CSV Dataset and Data Frame dimensions DO NOT match. -- FAILURE")
 }
 
+################################################################################
+# 8. Summarize the Base Tidy datasets, providing averages for measures present.
+################################################################################
+
+# Write log entry for start of step
+
+write_log("Writing the Tidy dataset as a CSV file...")
+
+# Using the plyr package to do the summarizing.
+# Setting the digits to 5 to match the input data granularity
+ 
+library(plyr)
+options(digits=5)
+
+# Produce the summarized dataset
+
+tidy_mean_df <- as.data.frame(test_tidy_df %>% 
+                group_by(ActivityName, SubjectID) %>% 
+		summarise_each(funs(mean)))
+
+# secure the dimensions for the tidy data frame
+
+ncol_tidy_mean_df <- ncol(tidy_mean_df)
+nrow_tidy_mean_df <- nrow(tidy_mean_df)
+
+# demonstrate the summarized nature of the file
+
+print(paste("Tidy Mean Summary Dataset has", nrow_tidy_mean_df, "rows and", ncol_tidy_mean_df, "columns."))
+print("Tidy Mean Summary Dataset - 4X6 Upper Corner - Shows the data for visual review")
+print(tidy_mean_df[c(1:4),c(1:6)])
+
+
+
+
+
+
+
+
+
+
+
 
 ################################################################################
-# 8. Log the successful completion of the script.
+# 10. Log the successful completion of the script.
 ################################################################################
 
 write_log("QED - Script ended successfully.")
