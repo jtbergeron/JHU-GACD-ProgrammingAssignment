@@ -58,6 +58,10 @@ run_analysis <- function() {
 #    tidy_dataset_path <- "./tidy-data/tidy_base_UCI_HAR_Dataset.csv"
 #    test_tidy_df <- read.csv(tidy_dataset_path, stringsAsFactors=FALSE)
 #
+# The resulting "Tidy Mean Summary" CSV file can be read in as follows:
+#    tidy_mean_dataset_path <- "./tidy-data/tidy_mean_UCI_HAR_Dataset.csv"
+#    test_tidy_mean_df <- read.csv(tidy_mean_dataset_path, stringsAsFactors=FALSE)
+#
 ################################################################################
 
 ################################################################################
